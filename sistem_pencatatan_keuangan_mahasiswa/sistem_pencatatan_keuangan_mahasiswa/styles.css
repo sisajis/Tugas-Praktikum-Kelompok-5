@@ -1,0 +1,84 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f1f5f9;
+  color: #1f2937;
+}
+
+.container {
+  max-width: 850px;
+  margin: 30px auto;
+  padding: 20px;
+}
+
+h1 {
+  color: #176b46;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  margin: 20px 0;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px #00000012;
+}
+
+form {
+  display: grid;
+  gap: 10px;
+}
+
+input,
+select,
+button {
+  padding: 11px;
+  font-size: 15px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+}
+
+button {
+  background: #176b46;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #105536;
+}
+
+button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.secondary-button {
+  background: #475569;
+}
+
+.secondary-button:hover {
+  background: #334155;
+}
+
+.account-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.account-card p {
+  overflow-wrap: anywhere;
+}
+
+#message {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 600px) {
+  .container {
+    margin: 10px auto;
+    padding: 12px;
+  }
+}

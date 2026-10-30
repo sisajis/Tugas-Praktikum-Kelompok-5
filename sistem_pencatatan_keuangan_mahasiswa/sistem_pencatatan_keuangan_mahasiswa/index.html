@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Pencatatan Keuangan Mahasiswa</title>
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="script.js"></script>
+</head>
+<body>
+  <main class="container">
+    <h1>Sistem Pencatatan Keuangan Mahasiswa</h1>
+    <p>Praktikum Implementasi dan Pengujian Sistem Informasi</p>
+
+    <section class="card" id="auth-section">
+      <h2 id="auth-title">Masuk</h2>
+      <form id="auth-form">
+        <label for="auth-email">Email</label>
+        <input id="auth-email" name="email" type="email" autocomplete="email" required>
+
+        <label for="auth-password">Password</label>
+        <input id="auth-password" name="password" type="password"
+          autocomplete="current-password" minlength="6" required>
+
+        <button id="auth-submit" type="submit">Masuk</button>
+        <button id="auth-toggle" class="secondary-button" type="button">
+          Belum punya akun? Daftar
+        </button>
+        <button id="resend-confirmation" class="secondary-button" type="button" hidden>
+          Kirim ulang email konfirmasi
+        </button>
+        <p id="auth-message" role="status"></p>
+      </form>
+    </section>
+
+    <div id="app-section" hidden>
+      <section class="card account-card">
+        <p>Login sebagai <strong id="user-email"></strong></p>
+        <button id="sign-out" class="secondary-button" type="button">Keluar</button>
+      </section>
+
+      <section class="card">
+        <h2>Form Pencatatan Transaksi</h2>
+
+        <form id="transaction-form">
+          <label for="type">Jenis Transaksi</label>
+          <select id="type" name="type" required>
+            <option value="income">Pemasukan</option>
+            <option value="expense">Pengeluaran</option>
+          </select>
+
+          <label for="amount">Nominal (Rp)</label>
+          <input id="amount" name="amount" type="number"
+            placeholder="Contoh: 50000">
+
+          <label for="category">Kategori</label>
+          <input id="category" name="category" type="text"
+            placeholder="Contoh: Uang saku">
+
+          <label for="date">Tanggal</label>
+          <input id="date" name="date" type="date">
+
+          <label for="description">Keterangan</label>
+          <input id="description" name="description" type="text"
+            placeholder="Keterangan transaksi">
+
+          <button type="submit">Simpan Transaksi</button>
+          <p id="message" role="status"></p>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>Ringkasan Keuangan</h2>
+        <p>Total Pemasukan: <strong id="income">Rp0</strong></p>
+        <p>Total Pengeluaran: <strong id="expense-total">Rp0</strong></p>
+        <p>Saldo: <strong id="balance">Rp0</strong></p>
+      </section>
+
+      <section class="card">
+        <h2>Riwayat Transaksi</h2>
+        <ul id="transaction-list"></ul>
+      </section>
+    </div>
+  </main>
+</body>
+</html>
