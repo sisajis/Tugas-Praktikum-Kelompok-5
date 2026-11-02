@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#2b4fd9">
+  <title>Sistem Pencatatan Keuangan Mahasiswa</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%232b4fd9'/%3E%3Ctext x='16' y='22' font-size='17' text-anchor='middle' fill='%23ffd75e' font-family='Arial' font-weight='700'%3ERp%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    // Terapkan tema sebelum halaman tampil agar tidak berkedip
+    try {
+      var pref = localStorage.getItem("theme-pref") || "system";
+      var dark = pref === "dark" ||
+        (pref === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      document.documentElement.dataset.theme = dark ? "dark" : "light";
+    } catch (e) {}
+  </script>
+  <script type="module" src="script.js"></script>
+</head>
+<body>
+
+  <!-- ================= HALAMAN MASUK / DAFTAR ================= -->
+  <div id="auth-section" class="auth-wrap">
+    <main class="auth-card">
+      <div class="brand">
+        <span class="brand-mark" data-icon="wallet" data-size="28"></span>
+        <h1>Sistem Pencatatan Keuangan Mahasiswa</h1>
+        <p>Praktikum Implementasi dan Pengujian Sistem Informasi</p>
+      </div>
+
+      <h2 id="auth-title">Masuk</h2>
+      <form id="auth-form">
+        <label for="auth-email">Email</label>
+        <input id="auth-email" name="email" type="email" autocomplete="email" required>
+
+        <label for="auth-password">Password</label>
+        <input id="auth-password" name="password" type="password"
+          autocomplete="current-password" minlength="6" required>
+
+        <button id="auth-submit" type="submit">Masuk</button>
+        <button id="auth-toggle" class="secondary-button" type="button">
+          Belum punya akun? Daftar
+        </button>
+        <button id="resend-confirmation" class="secondary-button" type="button" hidden>
+          Kirim ulang email konfirmasi
+        </button>
+        <p id="auth-message" role="status"></p>
+      </form>
+    </main>
+  </div>
+
+  <!-- ================= APLIKASI (SETELAH LOGIN) ================= -->
+  <div id="app-section" hidden>
+    <main class="app-main">
+
+      <!-- ---------- BERANDA / DASHBOARD ---------- -->
+      <section id="view-home" class="view">
+        <div class="home-top">
+          <button type="button" class="profile" data-go="settings" aria-label="Buka pengaturan profil">
+            <span class="avatar" id="avatar">?</span>
+            <span class="profile-text">
+              <strong id="profile-name"></strong>
+              <small id="user-email"></small>
+            </span>
+          </button>
+          <div class="top-actions">
+            <button type="button" class="icon-btn round" id="theme-toggle" aria-label="Ganti tema">
+              <span id="theme-icon" data-icon="moon" data-size="20"></span>
+            </button>
+            <button type="button" class="icon-btn round" id="bell-btn" aria-label="Notifikasi">
+              <span data-icon="bell" data-size="20"></span>
+              <span class="bell-dot" id="bell-dot" hidden></span>
+            </button>
+          </div>
+        </div>
+
+        <section class="hero" aria-label="Ringkasan saldo">
+          <div class="hero-row">
+            <span class="pill" id="greeting"></span>
+            <span class="hero-date" id="today-label"></span>
+          </div>
+
+          <div class="hero-balance">
+            <div>
+              <small>Saldo saat ini</small>
+              <strong id="balance">Rp0</strong>
+            </div>
+            <dl class="hero-side">
+              <div><dt>Pemasukan total</dt><dd id="income">Rp0</dd></div>
+              <div><dt>Pengeluaran total</dt><dd id="expense-total">Rp0</dd></div>
+            </dl>
+          </div>
+
+          <div class="hero-divider"></div>
+
+          <div class="month-nav on-blue" data-month-nav>
+            <button type="button" class="icon-btn" data-step="-1" aria-label="Bulan sebelumnya">
+              <span data-icon="chevronLeft" data-size="18"></span>
+            </button>
+            <h3>Rekap Keuangan <span data-month-label="relative"></span></h3>
+            <button type="button" class="icon-btn" data-step="1" aria-label="Bulan berikutnya">
+              <span data-icon="chevronRight" data-size="18"></span>
+            </button>
+          </div>
+
+          <div class="recap">
+            <div><small>Pemasukan</small><b id="month-income">Rp0</b></div>
+            <div><small>Pengeluaran</small><b id="month-expense">Rp0</b></div>
+            <div><small>Tabungan</small><b id="month-saving">Rp0</b></div>
+          </div>
+        </section>
+
+        <div class="pair">
+          <section class="card mini" aria-label="Total tabungan">
+            <span class="mini-icon saving" data-icon="saving" data-size="20"></span>
+            <small>Total tabungan</small>
+            <strong id="savings-total">Rp0</strong>
+            <small>Terpisah dari saldo</small>
+            <button type="button" class="link-button" data-go="add" data-type="saving">Tambah tabungan</button>
+          </section>
+          <section class="card mini" aria-label="Anggaran bulan ini">
+            <span class="mini-icon budget" data-icon="wallet" data-size="20"></span>
+            <small>Anggaran bulan ini</small>
+            <strong id="budget-text">Belum diatur</strong>
+            <small id="budget-sub"></small>
+            <div class="progress" id="budget-progress" hidden>
+              <i id="budget-bar"></i>
+            </div>
+            <button type="button" class="link-button" id="budget-link" data-go="settings">Atur anggaran</button>
+          </section>
+        </div>
+
+        <nav class="menu-grid" aria-label="Menu utama">
+          <button type="button" class="menu-item" data-go="add" data-type="income">
+            <span class="menu-icon" data-icon="income" data-size="26"></span>
+            <span>Masuk Saldo</span>
+          </button>
+          <button type="button" class="menu-item" data-go="add" data-type="expense">
+            <span class="menu-icon" data-icon="expense" data-size="26"></span>
+            <span>Pengeluaran</span>
+          </button>
+          <button type="button" class="menu-item" data-go="add" data-type="saving">
+            <span class="menu-icon" data-icon="saving" data-size="26"></span>
+            <span>Nabung</span>
+          </button>
+          <button type="button" class="menu-item" data-go="history">
+            <span class="menu-icon" data-icon="history" data-size="26"></span>
+            <span>Riwayat Transaksi</span>
+          </button>
+          <button type="button" class="menu-item" data-go="accumulation">
+            <span class="menu-icon" data-icon="calendar" data-size="26"></span>
+            <span>Akumulasi</span>
+          </button>
+          <button type="button" class="menu-item" data-go="activity">
+            <span class="menu-icon" data-icon="activity" data-size="26"></span>
+            <span>Aktivitas</span>
+          </button>
+          <button type="button" class="menu-item" data-go="report">
+            <span class="menu-icon" data-icon="report" data-size="26"></span>
+            <span>Cetak Laporan</span>
+          </button>
+          <button type="button" class="menu-item" data-go="settings">
+            <span class="menu-icon" data-icon="settings" data-size="26"></span>
+            <span>Pengaturan</span>
+          </button>
+        </nav>
+
+        <section class="card">
+          <div class="card-head">
+            <h3>Arus Kas <span data-month-label="relative"></span></h3>
+          </div>
+          <div class="legend" aria-hidden="true">
+            <span><i class="dot income"></i>Pemasukan</span>
+            <span><i class="dot expense"></i>Pengeluaran</span>
+          </div>
+          <div id="home-chart" class="chart-box"></div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <h3>Transaksi Terbaru</h3>
+            <button type="button" class="link-button" data-go="history">Lihat semua</button>
+          </div>
+          <ul class="tx-list" id="recent-list"></ul>
+        </section>
+      </section>
+
+      <!-- ---------- CATAT TRANSAKSI ---------- -->
+      <section id="view-add" class="view" hidden>
+        <header class="page-head">
+          <button type="button" class="icon-btn round" data-go="home" aria-label="Kembali ke beranda">
+            <span data-icon="back" data-size="20"></span>
+          </button>
+          <h2 id="form-title" tabindex="-1">Form Pencatatan Transaksi</h2>
+        </header>
+
+        <section class="card">
+          <form id="transaction-form" novalidate>
+            <div class="segmented" id="type-switch" role="group" aria-label="Jenis transaksi">
+              <button type="button" data-type="income">Pemasukan</button>
+              <button type="button" data-type="expense">Pengeluaran</button>
+              <button type="button" data-type="saving">Nabung</button>
+              <button type="button" data-type="withdraw">Tarik Tabungan</button>
+            </div>
+            <input id="type" name="type" type="hidden" value="income">
+
+            <label for="amount">Nominal (Rp)</label>
+            <input id="amount" name="amount" type="number" inputmode="decimal"
+              min="0" step="any" placeholder="Contoh: 50000">
+            <p class="hint" id="amount-preview" aria-live="polite"></p>
+
+            <label for="category">Kategori</label>
+            <input id="category" name="category" type="text" maxlength="40"
+              autocomplete="off" placeholder="Contoh: Uang saku">
+            <div class="chips" id="category-chips" aria-label="Saran kategori"></div>
+
+            <label for="date">Tanggal</label>
+            <input id="date" name="date" type="date">
+
+            <label for="description">Keterangan</label>
+            <input id="description" name="description" type="text" maxlength="200"
+              placeholder="Keterangan transaksi (opsional)">
+
+            <p class="hint" id="form-hint"></p>
+
+            <button type="submit" id="form-submit">Simpan Transaksi</button>
+            <button type="button" class="secondary-button" id="form-cancel" hidden>Batal</button>
+            <p id="message" role="status"></p>
+          </form>
+        </section>
+      </section>
+
+      <!-- ---------- RIWAYAT ---------- -->
+      <section id="view-history" class="view" hidden>
+        <header class="page-head">
+          <button type="button" class="icon-btn round" data-go="home" aria-label="Kembali ke beranda">
+            <span data-icon="back" data-size="20"></span>
+          </button>
+          <h2 tabindex="-1">Riwayat Transaksi</h2>
+        </header>
+
+        <section class="card filters">
+          <div class="search-field">
+            <span data-icon="search" data-size="18"></span>
+            <input id="history-search" type="search" placeholder="Cari kategori atau keterangan"
+              aria-label="Cari transaksi">
+          </div>
+          <div class="filter-row">
+            <select id="history-month" aria-label="Filter bulan"></select>
+            <select id="history-type" aria-label="Filter jenis">
+              <option value="all">Semua jenis</option>
+              <option value="income">Pemasukan</option>
+              <option value="expense">Pengeluaran</option>
+              <option value="saving">Tabungan</option>
+              <option value="withdraw">Tarik Tabungan</option>
+            </select>
+          </div>
+          <p class="hint" id="history-summary" aria-live="polite"></p>
+        </section>
+
+        <div id="transaction-list"></div>
+        <button type="button" class="secondary-button wide" id="history-more" hidden>Tampilkan lebih banyak</button>
+      </section>
+
+      <!-- ---------- AKUMULASI ---------- -->
+      <section id="view-accumulation" class="view" hidden>
+        <header class="page-head">
+          <button type="button" class="icon-btn round" data-go="home" aria-label="Kembali ke beranda">
+            <span data-icon="back" data-size="20"></span>
+          </button>
+          <h2 tabindex="-1">Akumulasi</h2>
+        </header>
+
+        <div class="tabs" role="tablist" aria-label="Jenis akumulasi">
+          <button type="button" role="tab" id="tab-daily" aria-controls="panel-daily"
+            aria-selected="true" data-accum-tab="daily">Per Tanggal</button>
+          <button type="button" role="tab" id="tab-monthly" aria-controls="panel-monthly"
+            aria-selected="false" data-accum-tab="monthly">Per Bulan</button>
+        </div>
+
+        <div id="panel-daily" role="tabpanel" aria-labelledby="tab-daily">
+          <div class="month-nav bar" data-month-nav>
+            <button type="button" class="icon-btn" data-step="-1" aria-label="Bulan sebelumnya">
+              <span data-icon="chevronLeft" data-size="18"></span>
+            </button>
+            <strong data-month-label></strong>
+            <button type="button" class="icon-btn" data-step="1" aria-label="Bulan berikutnya">
+              <span data-icon="chevronRight" data-size="18"></span>
+            </button>
+          </div>
+
+          <div class="stat-grid" id="daily-summary"></div>
+
+          <section class="card">
+            <div class="card-head">
+              <h3>Akumulasi per Tanggal</h3>
+              <label class="check">
+                <input type="checkbox" id="show-all-days"> Semua tanggal
+              </label>
+            </div>
+            <p class="hint">Ketuk tanggal untuk melihat transaksi hari itu. Kolom Saldo adalah saldo di akhir hari, dihitung dari saldo awal bulan.</p>
+            <div class="table-wrap">
+              <table class="acc-table" id="daily-table"></table>
+            </div>
+          </section>
+        </div>
+
+        <div id="panel-monthly" role="tabpanel" aria-labelledby="tab-monthly" hidden>
+          <div class="month-nav bar" data-year-nav>
+            <button type="button" class="icon-btn" data-step="-1" aria-label="Tahun sebelumnya">
+              <span data-icon="chevronLeft" data-size="18"></span>
+            </button>
+            <strong data-year-label></strong>
+            <button type="button" class="icon-btn" data-step="1" aria-label="Tahun berikutnya">
+              <span data-icon="chevronRight" data-size="18"></span>
+            </button>
+          </div>
+
+          <div class="stat-grid" id="monthly-summary"></div>
+
+          <section class="card">
+            <div class="card-head"><h3>Akumulasi per Bulan</h3></div>
+            <p class="hint">Ketuk nama bulan untuk melihat rincian per tanggalnya. Kolom Saldo adalah saldo di akhir bulan.</p>
+            <div class="table-wrap">
+              <table class="acc-table" id="monthly-table"></table>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <!-- ---------- AKTIVITAS ---------- -->
+      <section id="view-activity" class="view" hidden>
+        <header class="page-head">
+          <button type="button" class="icon-btn round" data-go="home" aria-label="Kembali ke beranda">
+            <span data-icon="back" data-size="20"></span>
+          </button>
+          <h2 tabindex="-1">Aktivitas</h2>
+        </header>
+
+        <div class="month-nav bar" data-month-nav>
+          <button type="button" class="icon-btn" data-step="-1" aria-label="Bulan sebelumnya">
+            <span data-icon="chevronLeft" data-size="18"></span>
+          </button>
+          <strong data-month-label></strong>
+          <button type="button" class="icon-btn" data-step="1" aria-label="Bulan berikutnya">
+            <span data-icon="chevronRight" data-size="18"></span>
+          </button>
+        </div>
+
+        <div class="stat-grid" id="insight-grid"></div>
+
+        <section class="card">
+          <div class="card-head"><h3>Pemasukan dan Pengeluaran Harian</h3></div>
+          <div class="legend" aria-hidden="true">
+            <span><i class="dot income"></i>Pemasukan</span>
+            <span><i class="dot expense"></i>Pengeluaran</span>
+          </div>
+          <div id="activity-daily-chart" class="chart-box"></div>
+        </section>
+
+        <section class="card">
+          <div class="card-head"><h3>Pengeluaran per Kategori</h3></div>
+          <div id="category-list"></div>
+        </section>
+
+        <section class="card">
+          <div class="card-head"><h3>Tren Bulanan <span id="trend-year"></span></h3></div>
+          <div class="legend" aria-hidden="true">
+            <span><i class="dot income"></i>Pemasukan</span>
+            <span><i class="dot expense"></i>Pengeluaran</span>
+          </div>
+          <div id="activity-monthly-chart" class="chart-box"></div>
+        </section>
+      </section>
+
+      <!-- ---------- CETAK LAPORAN ---------- -->
+      <section id="view-report" class="view" hidden>
+        <header class="page-head">
+          <button type="button" class="icon-btn round" data-go="home" aria-label="Kembali ke beranda">
+            <span data-icon="back" data-size="20"></span>
+          </button>
+          <h2 tabindex="-1">Cetak Laporan</h2>
+        </header>
+
+        <div class="tabs" role="tablist" aria-label="Periode laporan">
+          <button type="button" role="tab" aria-selected="true" data-report-scope="month">Bulanan</button>
+          <button type="button" role="tab" aria-selected="false" data-report-scope="year">Tahunan</button>
+        </div>
+
+        <div class="month-nav bar" id="report-month-nav" data-month-nav>
+          <button type="button" class="icon-btn" data-step="-1" aria-label="Bulan sebelumnya">
+            <span data-icon="chevronLeft" data-size="18"></span>
+          </button>
+          <strong data-month-label></strong>
+          <button type="button" class="icon-btn" data-step="1" aria-label="Bulan berikutnya">
+            <span data-icon="chevronRight" data-size="18"></span>
+          </button>
+        </div>
+        <div class="month-nav bar" id="report-year-nav" data-year-nav hidden>
+          <button type="button" class="icon-btn" data-step="-1" aria-label="Tahun sebelumnya">
+            <span data-icon="chevronLeft" data-size="18"></span>
+          </button>
+          <strong data-year-label></strong>
+          <button type="button" class="icon-btn" data-step="1" aria-label="Tahun berikutnya">
+            <span data-icon="chevronRight" data-size="18"></span>
+          </button>
+        </div>
+
+        <div class="stat-grid" id="report-summary"></div>
+
+        <section class="card">
+          <div class="card-head"><h3>Unduh atau Cetak</h3></div>
+          <p class="hint" id="report-hint"></p>
+          <div class="action-list">
+            <button type="button" class="action" id="export-word">
+              <span data-icon="report" data-size="22"></span>
+              <span><strong>Dokumen Word (.doc)</strong><small>Ringkasan, akumulasi, dan rincian transaksi</small></span>
+            </button>
+            <button type="button" class="action" id="export-csv">
+              <span data-icon="table" data-size="22"></span>
+              <span><strong>Berkas CSV</strong><small>Untuk dibuka di Excel atau Google Sheets</small></span>
+            </button>
+            <button type="button" class="action" id="export-print">
+              <span data-icon="printer" data-size="22"></span>
+              <span><strong>Cetak atau simpan PDF</strong><small>Pilih "Simpan sebagai PDF" di dialog cetak</small></span>
+            </button>
+          </div>
+        </section>
+      </section>
+
+      <!-- ---------- PENGATURAN ---------- -->
+      <section id="view-settings" class="view" hidden>
+        <header class="page-head">
+          <button type="button" class="icon-btn round" data-go="home" aria-label="Kembali ke beranda">
+            <span data-icon="back" data-size="20"></span>
+          </button>
+          <h2 tabindex="-1">Pengaturan</h2>
+        </header>
+
+        <section class="card">
+          <div class="card-head"><h3>Profil dan Anggaran</h3></div>
+          <form id="profile-form">
+            <label for="display-name">Nama tampilan</label>
+            <input id="display-name" type="text" maxlength="30" autocomplete="nickname">
+
+            <label for="monthly-budget">Anggaran pengeluaran bulanan (Rp)</label>
+            <input id="monthly-budget" type="number" inputmode="numeric" min="0" step="1"
+              placeholder="Contoh: 1500000">
+            <p class="hint">Kosongkan jika tidak memakai anggaran. Peringatan muncul saat pengeluaran mencapai 80% dan 100%.</p>
+
+            <button type="submit" id="profile-submit">Simpan Pengaturan</button>
+            <p id="profile-message" role="status"></p>
+          </form>
+        </section>
+
+        <section class="card">
+          <div class="card-head"><h3>Tampilan</h3></div>
+          <label for="theme-select">Tema</label>
+          <select id="theme-select">
+            <option value="system">Ikuti perangkat</option>
+            <option value="light">Terang</option>
+            <option value="dark">Gelap</option>
+          </select>
+        </section>
+
+        <section class="card account-card">
+          <p>Login sebagai <strong id="settings-email"></strong></p>
+          <button id="sign-out" class="danger-button" type="button">
+            <span data-icon="logout" data-size="18"></span> Keluar
+          </button>
+        </section>
+      </section>
+    </main>
+
+    <!-- Navigasi bawah -->
+    <nav class="bottom-nav" aria-label="Navigasi utama">
+      <button type="button" data-go="home" data-nav="home">
+        <span data-icon="home" data-size="22"></span><span>Beranda</span>
+      </button>
+      <button type="button" data-go="accumulation" data-nav="accumulation">
+        <span data-icon="calendar" data-size="22"></span><span>Akumulasi</span>
+      </button>
+      <button type="button" class="fab" id="fab-add" aria-label="Catat transaksi baru">
+        <span data-icon="plus" data-size="28"></span>
+      </button>
+      <button type="button" data-go="activity" data-nav="activity">
+        <span data-icon="activity" data-size="22"></span><span>Aktivitas</span>
+      </button>
+      <button type="button" data-go="history" data-nav="history">
+        <span data-icon="history" data-size="22"></span><span>Riwayat</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Dialog notifikasi -->
+  <dialog id="notif-dialog" aria-labelledby="notif-title">
+    <div class="dialog-head">
+      <h3 id="notif-title">Notifikasi</h3>
+      <button type="button" class="icon-btn" id="notif-close" aria-label="Tutup">
+        <span data-icon="plus" data-size="20" class="rot45"></span>
+      </button>
+    </div>
+    <ul class="notif-list" id="notif-list"></ul>
+  </dialog>
+
+  <!-- Dialog konfirmasi hapus -->
+  <dialog id="confirm-dialog" aria-labelledby="confirm-title">
+    <h3 id="confirm-title">Hapus transaksi?</h3>
+    <p id="confirm-text"></p>
+    <div class="dialog-actions">
+      <button type="button" class="secondary-button" id="confirm-cancel">Batal</button>
+      <button type="button" class="danger-button" id="confirm-ok">Hapus</button>
+    </div>
+  </dialog>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+  <div id="print-area" aria-hidden="true"></div>
+</body>
+</html>

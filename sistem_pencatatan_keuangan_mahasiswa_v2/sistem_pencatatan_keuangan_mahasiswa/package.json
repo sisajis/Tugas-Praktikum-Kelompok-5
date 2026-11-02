@@ -1,0 +1,10 @@
+{
+  "name": "sistem-pencatatan-keuangan-mahasiswa",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Pencatatan keuangan mahasiswa dengan dashboard, akumulasi harian dan bulanan, serta laporan.",
+  "scripts": {
+    "test": "node --test tests/aggregate.test.mjs"
+  }
+}
